@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hemora Jewellery — Traditional Gold Jewel Detail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dosis:wght@400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css?v=2" />
+    <style>
+      .product-page {
+        padding: 120px 0 80px;
+        background-color: var(--color-bg-light);
+      }
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+        margin-bottom: 32px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .breadcrumb a:hover {
+        color: var(--color-primary-dark);
+      }
+      .product-hero {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 48px;
+        align-items: start;
+        margin-bottom: 80px;
+      }
+      .product-gallery {
+        position: relative;
+      }
+      .product-main-img-wrap {
+        position: relative;
+        background-color: var(--color-white);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        aspect-ratio: 1;
+        cursor: zoom-in;
+      }
+      .product-main-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 0.2s ease;
+      }
+      .product-lens {
+        position: absolute;
+        border: 2px solid var(--color-primary-dark);
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background-repeat: no-repeat;
+        display: none;
+        pointer-events: none;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+        z-index: 15;
+        cursor: none;
+      }
+      .product-thumbs {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .product-thumb {
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        aspect-ratio: 1;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        padding: 0;
+      }
+      .product-thumb.active {
+        border-color: var(--color-primary-dark);
+      }
+      .product-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .product-details h1 {
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+      .product-brand {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 700;
+        color: var(--color-text-muted);
+        margin-bottom: 12px;
+        display: block;
+      }
+      .product-rating {
+        color: var(--color-primary-dark);
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .product-rating span {
+        color: var(--color-text-muted);
+        font-size: 0.85rem;
+      }
+      .product-price {
+        font-size: 2.2rem;
+        color: var(--color-primary-dark);
+        font-weight: 600;
+        margin-bottom: 24px;
+      }
+      .product-price del {
+        font-size: 1.2rem;
+        color: var(--color-text-muted);
+        margin-right: 10px;
+        font-weight: 400;
+      }
+      .product-description {
+        font-size: 1rem;
+        color: var(--color-text-muted);
+        margin-bottom: 32px;
+        line-height: 1.8;
+      }
+      .selector-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        color: var(--color-text-dark);
+      }
+      .size-selector {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 32px;
+      }
+      .size-btn {
+        border: 1px solid var(--color-border);
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 9999px;
+        background: none;
+        transition: all var(--transition-fast);
+      }
+      .size-btn.active,
+      .size-btn:hover {
+        border-color: var(--color-primary-dark);
+        background-color: var(--color-bg-beige);
+        color: var(--color-primary-dark);
+      }
+      .product-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 40px;
+      }
+      .product-actions button {
+        width: 100%;
+      }
+      .product-specs {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 40px;
+      }
+      .product-specs td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--color-border);
+        font-size: 0.9rem;
+      }
+      .product-specs td:first-child {
+        font-weight: 600;
+        color: var(--color-primary-dark);
+        width: 35%;
+      }
+      .product-specs td:last-child {
+        color: var(--color-text-dark);
+      }
+
+      /* Toast notification — fully self-contained, no CSS variable deps */
+      #toast-notify {
+        position: fixed;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%) translateY(120px);
+        background-color: #1a1a2e !important;
+        color: #ffffff !important;
+        padding: 16px 32px;
+        border-radius: 999px;
+        font-size: 1rem;
+        font-weight: 700;
+        z-index: 99999;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+          opacity 0.35s ease,
+          visibility 0.35s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+      #toast-notify.active {
+        transform: translateX(-50%) translateY(0) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+      #toast-notify svg {
+        color: #4ade80;
+        flex-shrink: 0;
+      }
+
+      /* Related Products Grid */
+      .related-products {
+        border-top: 1px solid var(--color-border);
+        padding-top: 60px;
+      }
+      .related-products h2 {
+        font-size: 2rem;
+        margin-bottom: 40px;
+        text-align: center;
+      }
+      .related-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .related-card {
+        background-color: var(--color-white);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition-base);
+      }
+      .related-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+      }
+      .related-card__img {
+        aspect-ratio: 1;
+        overflow: hidden;
+        background-color: var(--color-bg-beige);
+      }
+      .related-card__img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .related-card__info {
+        padding: 20px;
+      }
+      .related-card__info h4 {
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+      }
+      .related-card__info p {
+        color: var(--color-primary-dark);
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+
+      /* Simplified Nav */
+      .simplified-nav {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 70px;
+        border-bottom: 1px solid var(--color-border);
+        background-color: var(--color-bg-light);
+        z-index: 100;
+      }
+      .simplified-nav__container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        max-width: var(--container-max);
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .simplified-nav__back {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 1px;
+        color: var(--color-primary-dark);
+      }
+      .simplified-nav__back:hover {
+        color: var(--color-text-dark);
+      }
+
+      /* Lightbox modal overlay styling */
+      .lightbox-modal {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(18, 15, 13, 0.95);
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+      }
+      .lightbox-modal.active {
+        display: flex;
+      }
+      .lightbox-modal__img {
+        max-height: 85vh;
+        max-width: 90vw;
+        object-fit: contain;
+        border-radius: var(--radius-md);
+      }
+      .lightbox-modal__close {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        font-size: 2.5rem;
+        color: var(--color-text-light);
+        cursor: pointer;
+      }
+
+      @media (min-width: 768px) {
+        .product-hero {
+          grid-template-columns: 1.2fr 1fr;
+          gap: 60px;
+        }
+        .product-actions {
+          flex-direction: row;
+        }
+        .product-actions button {
+          flex: 1;
+        }
+        .related-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============================================ -->
+    <!-- UTILITY BAR (NIKE STYLE)                     -->
+    <!-- ============================================ -->
+    <div class="utility-bar">
+      <div class="container utility-bar__inner" id="utility-bar-inner">
+        <a href="terms.html">Help</a>
+        <span class="utility-bar__divider">|</span>
+        <a href="javascript:void(0)" id="utility-join">Join Us</a>
+        <span class="utility-bar__divider">|</span>
+        <a href="javascript:void(0)" id="utility-login">Sign In</a>
+      </div>
+    </div>
+
+    <!-- Simplified Navbar -->
+    <header class="simplified-nav">
+      <div class="simplified-nav__container">
+        <a
+          href="index.html"
+          class="navbar__logo"
+          style="display: inline-flex; align-items: center; gap: 8px"
+        >
+          <svg
+            class="logo-emblem"
+            viewBox="0 0 64 64"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            width="28"
+            height="28"
+            style="color: var(--color-primary-dark)"
+          >
+            <circle cx="32" cy="32" r="6" />
+            <path d="M32 12c-4 6-4 10 0 14 4-4 4-8 0-14z" />
+            <path d="M32 52c-4-6-4-10 0-14 4 4 4 8 0 14z" />
+            <path d="M12 32c6-4 10-4 14 0-4 4-8 4-14 0z" />
+            <path d="M52 32c-6-4-10-4-14 0 4 4 8 4 14 0z" />
+            <path d="M18 18c5 2 8 5 10 10-2-5-5-8-10-10z" />
+            <path d="M46 46c-5-2-8-5-10-10 2 5 5 8 10 10z" />
+            <path d="M46 18c-2 5-5 8-10 10 5-2 8-5 10-10z" />
+            <path d="M18 46c2-5 5-8 10-10-5 2-8 5-10 10z" />
+          </svg>
+          Hemora Jewellery
+        </a>
+
+        <a href="catalog.html" class="simplified-nav__back" id="back-link"
+          >← Back to Catalogue</a
+        >
+      </div>
+    </header>
+
+    <!-- Product Detail Container -->
+    <main class="product-page">
+      <div class="container">
+        <!-- Breadcrumbs -->
+        <div class="breadcrumb">
+          <a href="index.html">Home</a>
+          <span>/</span>
+          <a href="catalog.html">Catalogue</a>
+          <span>/</span>
+          <span id="breadcrumb-current">Traditional Gold Design</span>
+        </div>
+
+        <!-- Main Product Hero -->
+        <div class="product-hero">
+          <!-- Left: Multi Angle Gallery -->
+          <div class="product-gallery">
+            <div class="product-main-img-wrap" id="prod-zoom-container">
+              <img src="" alt="Traditional Jewel View" id="prod-main-img" />
+              <div class="product-lens" id="prod-lens"></div>
+            </div>
+            <!-- 5 Thumbnail Angles (Front, Side, Back, Top, Bottom) -->
+            <div class="product-thumbs" id="prod-thumbs-row">
+              <!-- Loaded dynamically -->
+            </div>
+          </div>
+
+          <!-- Right: Details -->
+          <div class="product-details">
+            <span class="product-brand">Hemora Jewellery</span>
+            <h1 id="prod-name">Traditional Gold Jewel</h1>
+            <div class="product-rating">
+              ★★★★★ <span id="prod-reviews">4.9 (42 reviews)</span>
+            </div>
+            <div class="product-price" id="prod-price">₹0</div>
+
+            <p class="product-description" id="prod-desc">
+              A magnificent traditional masterpiece celebrating South Indian
+              gold traditions. Handcrafted by master artisans with detailed
+              temple patterns, antique polished gold work, and BIS hallmark
+              authenticity.
+            </p>
+
+            <!-- Sizes Selector -->
+            <div class="selector-label">Select Standard Size</div>
+            <div class="size-selector" id="prod-size-row">
+              <!-- Filled dynamically -->
+            </div>
+
+            <!-- Actions -->
+            <div class="product-actions">
+              <button
+                class="btn btn--large"
+                id="place-order-page"
+                style="
+                  background-color: #0f172a;
+                  color: #ffffff;
+                  font-weight: 700;
+                  border: none;
+                  border-radius: 9999px;
+                  padding: 16px 24px;
+                  cursor: pointer;
+                  transition: background-color 0.2s;
+                "
+                onmouseover="this.style.backgroundColor = '#1E293B'"
+                onmouseout="this.style.backgroundColor = '#0F172A'"
+              >
+                Place Order
+              </button>
+              <button class="btn btn--primary btn--large" id="add-to-bag-page">
+                Add to Bag
+              </button>
+            </div>
+
+            <!-- Specifications Table -->
+            <div class="selector-label">Product Details</div>
+            <table class="product-specs">
+              <tbody>
+                <tr>
+                  <td>Purity Standards</td>
+                  <td>22K Gold BIS 916 Certified</td>
+                </tr>
+                <tr>
+                  <td>Goldsmithing Type</td>
+                  <td>Nagas Temple Handcraft</td>
+                </tr>
+                <tr>
+                  <td>Stones Highlight</td>
+                  <td>Precious Ruby Beads &amp; Polki Gems</td>
+                </tr>
+                <tr>
+                  <td>Quality Mark</td>
+                  <td>Hallmark Stamped &amp; Insured</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div
+              class="showcase__trust"
+              style="
+                border-bottom: 1px solid var(--color-border);
+                padding-bottom: 24px;
+              "
+            >
+              <div class="trust-badge">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                Lifetime exchange
+              </div>
+              <div class="trust-badge">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                Hallmarked Gold
+              </div>
+              <div class="trust-badge">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect width="20" height="14" x="2" y="5" rx="2" />
+                  <line x1="2" x2="22" y1="10" y2="10" />
+                </svg>
+                Fully Insured
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- You May Also Like -->
+        <section class="related-products">
+          <h2>Suggested Traditional Pieces</h2>
+          <div class="related-grid" id="related-container">
+            <!-- Filled dynamically -->
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div class="toast-notify" id="toast-notify">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3"
+      >
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      <span id="toast-text">Added to Bag Successfully!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container" style="text-align: center; padding: 40px 0">
+        <a href="#" class="footer__logo">Hemora Jewellery</a>
+        <p style="font-size: 0.85rem; opacity: 0.6; margin-top: 10px">
+          &copy; 2025 Hemora Jewellery Jewels Pvt. Ltd. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <!-- AUTHENTICATION MODAL — SOLID TWO-VIEW DESIGN -->
+    <div class="auth-overlay" id="auth-overlay"></div>
+    <div
+      class="auth-modal"
+      id="auth-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+    >
+      <button
+        class="auth-modal__close"
+        id="auth-close"
+        aria-label="Close modal"
+      >
+        &times;
+      </button>
+      <div class="auth-modal__container">
+        <!-- ===== SIGN IN VIEW ===== -->
+        <div class="auth-view active" id="auth-signin-view">
+          <div class="auth-brand">
+            <svg
+              viewBox="0 0 64 64"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              width="36"
+              height="36"
+            >
+              <circle cx="32" cy="32" r="6" />
+              <path d="M32 12c-4 6-4 10 0 14 4-4 4-8 0-14z" />
+              <path d="M32 52c-4-6-4-10 0-14 4 4 8 8 0 14z" />
+              <path d="M12 32c6-4 10-4 14 0-4 4-8 4-14 0z" />
+              <path d="M52 32c-6-4-10-4-14 0 4 4 8 4 14 0z" />
+            </svg>
+            <span>Hemora</span>
+          </div>
+          <h2 id="auth-modal-title">Welcome Back</h2>
+          <p class="auth-subtitle">
+            Sign in to manage your favorites and secure checkout.
+          </p>
+          <form id="signin-form" novalidate>
+            <div class="form-group" style="margin-bottom: 20px">
+              <label
+                for="signin-email"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="signin-email"
+                placeholder="name@example.com"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1px solid var(--color-border);
+                  border-radius: 9999px;
+                  font-size: 0.9rem;
+                  background-color: var(--color-bg-beige);
+                "
+              />
+            </div>
+            <div
+              class="form-group form-group--password"
+              style="margin-bottom: 20px"
+            >
+              <label
+                for="signin-password"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Password</label
+              >
+              <div
+                class="password-wrapper"
+                style="position: relative; display: flex; align-items: center"
+              >
+                <input
+                  type="password"
+                  id="signin-password"
+                  placeholder="Enter your password"
+                  required
+                  style="
+                    width: 100%;
+                    padding: 12px 48px 12px 16px;
+                    border: 1px solid var(--color-border);
+                    border-radius: 9999px;
+                    font-size: 0.9rem;
+                    background-color: var(--color-bg-beige);
+                  "
+                />
+                <button
+                  type="button"
+                  class="toggle-pw"
+                  data-target="signin-password"
+                  tabindex="-1"
+                  aria-label="Show password"
+                  style="
+                    position: absolute;
+                    right: 12px;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: var(--color-text-muted);
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div
+              class="form-options"
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin: 10px 0 20px;
+                font-size: 0.85rem;
+              "
+            >
+              <label
+                class="checkbox-label"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  color: var(--color-text-muted);
+                  cursor: pointer;
+                "
+              >
+                <input
+                  type="checkbox"
+                  id="signin-remember"
+                  style="accent-color: var(--color-primary-dark)"
+                />
+                Remember me
+              </label>
+              <a
+                href="javascript:void(0)"
+                class="forgot-link"
+                style="color: var(--color-primary-dark); font-weight: 600"
+                >Forgot Password?</a
+              >
+            </div>
+            <button
+              type="submit"
+              class="btn btn--primary btn--full auth-submit-btn"
+              style="
+                width: 100%;
+                padding: 14px;
+                font-weight: 700;
+                border-radius: 9999px;
+                cursor: pointer;
+              "
+            >
+              Sign In
+            </button>
+          </form>
+          <div
+            class="auth-divider"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin: 20px 0 12px;
+              color: var(--color-text-muted);
+              font-size: 0.8rem;
+            "
+          >
+            <span>New to Hemora?</span>
+          </div>
+          <p
+            class="auth-modal__switch"
+            style="
+              margin-top: 16px;
+              text-align: center;
+              font-size: 0.85rem;
+              color: var(--color-text-muted);
+            "
+          >
+            Don't have an account?
+            <a
+              href="javascript:void(0)"
+              id="switch-to-signup"
+              style="
+                color: var(--color-primary-dark);
+                font-weight: 700;
+                text-decoration: underline;
+              "
+              >Join Us</a
+            >
+          </p>
+        </div>
+
+        <!-- ===== SIGN UP VIEW ===== -->
+        <div class="auth-view" id="auth-signup-view">
+          <div class="auth-brand">
+            <svg
+              viewBox="0 0 64 64"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              width="36"
+              height="36"
+            >
+              <circle cx="32" cy="32" r="6" />
+              <path d="M32 12c-4 6-4 10 0 14 4-4 4-8 0-14z" />
+              <path d="M32 52c-4-6-4-10 0-14 4 4 8 8 0 14z" />
+              <path d="M12 32c6-4 10-4 14 0-4 4-8 4-14 0z" />
+              <path d="M52 32c-6-4-10-4-14 0 4 4 8 4 14 0z" />
+            </svg>
+            <span>Hemora</span>
+          </div>
+          <h2>Create Account</h2>
+          <p class="auth-subtitle">
+            Join Hemora Jewellery for exclusive rewards and collections.
+          </p>
+          <form id="signup-form" novalidate>
+            <div class="form-group" style="margin-bottom: 16px">
+              <label
+                for="signup-name"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Full Name</label
+              >
+              <input
+                type="text"
+                id="signup-name"
+                placeholder="First and last name"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1px solid var(--color-border);
+                  border-radius: 9999px;
+                  font-size: 0.9rem;
+                  background-color: var(--color-bg-beige);
+                "
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 16px">
+              <label
+                for="signup-email"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="signup-email"
+                placeholder="name@example.com"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1px solid var(--color-border);
+                  border-radius: 9999px;
+                  font-size: 0.9rem;
+                  background-color: var(--color-bg-beige);
+                "
+              />
+            </div>
+            <div
+              class="form-group form-group--password"
+              style="margin-bottom: 20px"
+            >
+              <label
+                for="signup-password"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Password</label
+              >
+              <div
+                class="password-wrapper"
+                style="position: relative; display: flex; align-items: center"
+              >
+                <input
+                  type="password"
+                  id="signup-password"
+                  placeholder="Create secure password"
+                  required
+                  style="
+                    width: 100%;
+                    padding: 12px 48px 12px 16px;
+                    border: 1px solid var(--color-border);
+                    border-radius: 9999px;
+                    font-size: 0.9rem;
+                    background-color: var(--color-bg-beige);
+                  "
+                />
+                <button
+                  type="button"
+                  class="toggle-pw"
+                  data-target="signup-password"
+                  tabindex="-1"
+                  aria-label="Show password"
+                  style="
+                    position: absolute;
+                    right: 12px;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: var(--color-text-muted);
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <p
+              class="auth-terms-note"
+              style="
+                font-size: 0.78rem;
+                color: var(--color-text-muted);
+                margin-bottom: 16px;
+                line-height: 1.5;
+              "
+            >
+              By creating an account, you agree to Hemora's
+              <a
+                href="terms.html"
+                style="
+                  color: var(--color-primary-dark);
+                  text-decoration: underline;
+                "
+                >Privacy Policy</a
+              >
+              and
+              <a
+                href="terms.html"
+                style="
+                  color: var(--color-primary-dark);
+                  text-decoration: underline;
+                "
+                >Terms of Use</a
+              >.
+            </p>
+            <button
+              type="submit"
+              class="btn btn--primary btn--full auth-submit-btn"
+              style="
+                width: 100%;
+                padding: 14px;
+                font-weight: 700;
+                border-radius: 9999px;
+                cursor: pointer;
+              "
+            >
+              Create Account
+            </button>
+          </form>
+          <div
+            class="auth-divider"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin: 20px 0 12px;
+              color: var(--color-text-muted);
+              font-size: 0.8rem;
+            "
+          >
+            <span>Already a member?</span>
+          </div>
+          <p
+            class="auth-modal__switch"
+            style="
+              margin-top: 16px;
+              text-align: center;
+              font-size: 0.85rem;
+              color: var(--color-text-muted);
+            "
+          >
+            Already have an account?
+            <a
+              href="javascript:void(0)"
+              id="switch-to-signin"
+              style="
+                color: var(--color-primary-dark);
+                font-weight: 700;
+                text-decoration: underline;
+              "
+              >Sign In</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEO LIGHTBOX MODAL -->
+    <div class="video-lightbox" id="video-lightbox">
+      <button
+        class="video-lightbox__close"
+        id="video-lightbox-close"
+        aria-label="Close video player"
+      >
+        &times;
+      </button>
+      <div class="video-lightbox__content">
+        <video id="lightbox-video" controls>
+          <source src="" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+
+    <script src="products_database.js"></script>
+    <script src="script.js?v=2"></script>
+    <script>
+      // ============================================================
+      // PRODUCT DETAILS LOADER & ZOOM EFFECT
+      // ============================================================
+      (function () {
+        // Find active product
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = parseInt(urlParams.get("id")) || 101;
+        const product =
+          (window.products || []).find((p) => p.id === productId) ||
+          (window.products || [])[0];
+
+        if (!product) return;
+
+        // Populate Page Elements
+        document.getElementById("breadcrumb-current").textContent =
+          product.name;
+        document.getElementById("prod-name").textContent = product.name;
+        document.getElementById("prod-desc").textContent = product.desc;
+        document.getElementById("prod-price").textContent =
+          "₹" + product.price.toLocaleString("en-IN");
+
+        const mainImg = document.getElementById("prod-main-img");
+        if (mainImg) {
+          mainImg.src = product.image;
+          mainImg.alt = product.name;
+        }
+
+        // Dynamically set back Link and breadcrumb catalog Link
+        const backLink = document.getElementById("back-link");
+        const catalogBreadcrumb = document.querySelector(
+          ".breadcrumb a:nth-child(3)",
+        );
+
+        if (backLink && catalogBreadcrumb) {
+          if (product.gender === "male") {
+            backLink.href = "men.html";
+            backLink.textContent = "← Back to Men's Catalogue";
+            catalogBreadcrumb.href = "men.html";
+            catalogBreadcrumb.textContent = "Men's Collection";
+          } else if (product.gender === "kids") {
+            backLink.href = "kids.html";
+            backLink.textContent = "← Back to Kids' Catalogue";
+            catalogBreadcrumb.href = "kids.html";
+            catalogBreadcrumb.textContent = "Kids' Collection";
+          } else if (product.gender === "diamonds") {
+            backLink.href = "diamonds.html";
+            backLink.textContent = "← Back to Diamond Catalogue";
+            catalogBreadcrumb.href = "diamonds.html";
+            catalogBreadcrumb.textContent = "Diamond Collection";
+          } else {
+            backLink.href = "women.html";
+            backLink.textContent = "← Back to Women's Catalogue";
+            catalogBreadcrumb.href = "women.html";
+            catalogBreadcrumb.textContent = "Women's Collection";
+          }
+        }
+
+        // Sizes Selector
+        const sizeRow = document.getElementById("prod-size-row");
+        if (sizeRow && product.sizes) {
+          sizeRow.innerHTML = "";
+          product.sizes.forEach((size, idx) => {
+            const btn = document.createElement("button");
+            btn.className = "size-btn" + (idx === 0 ? " active" : "");
+            btn.setAttribute("data-size", size);
+            btn.textContent = size;
+            btn.addEventListener("click", () => {
+              sizeRow
+                .querySelectorAll(".size-btn")
+                .forEach((b) => b.classList.remove("active"));
+              btn.classList.add("active");
+            });
+            sizeRow.appendChild(btn);
+          });
+        }
+
+        // Related Image Thumbs
+        const thumbRow = document.getElementById("prod-thumbs-row");
+        if (thumbRow && window.products) {
+          // Find 3 other related products from same category/gender
+          const relatedImages = window.products
+            .filter((p) => p.gender === product.gender && p.id !== product.id)
+            .slice(0, 3)
+            .map((p) => p.image);
+
+          const thumbs = [product.image, ...relatedImages];
+
+          thumbRow.innerHTML = "";
+          thumbs.forEach((src, idx) => {
+            const thumbImg = document.createElement("img");
+            thumbImg.src = src;
+            thumbImg.className =
+              "showcase__thumb" + (idx === 0 ? " active" : "");
+            thumbImg.alt = product.name + " Thumb " + (idx + 1);
+
+            thumbImg.addEventListener("click", () => {
+              thumbRow
+                .querySelectorAll(".showcase__thumb")
+                .forEach((t) => t.classList.remove("active"));
+              thumbImg.classList.add("active");
+
+              if (mainImg) {
+                mainImg.style.opacity = "0";
+                setTimeout(() => {
+                  mainImg.src = src;
+                  mainImg.style.opacity = "1";
+                }, 200);
+              }
+            });
+            thumbRow.appendChild(thumbImg);
+          });
+        }
+
+        // Circular Magnifying Glass Zoom
+        const zoomContainer = document.getElementById("prod-zoom-container");
+        const lens = document.getElementById("prod-lens");
+        const zoomFactor = 2.5;
+
+        let lastX = 0,
+          lastY = 0;
+
+        function updateZoomDisplay(x, y) {
+          if (!lens || !mainImg) return;
+          lens.style.backgroundImage = `url('${mainImg.src}')`;
+          lens.style.backgroundSize = `${mainImg.width * zoomFactor}px ${mainImg.height * zoomFactor}px`;
+
+          const bgX = x * zoomFactor - lens.offsetWidth / 2;
+          const bgY = y * zoomFactor - lens.offsetHeight / 2;
+          lens.style.backgroundPosition = `-${bgX}px -${bgY}px`;
+        }
+
+        function moveLens(e) {
+          e.preventDefault();
+          const rect = mainImg.getBoundingClientRect();
+          let x = e.clientX - rect.left;
+          let y = e.clientY - rect.top;
+
+          if (x < 0) x = 0;
+          if (x > mainImg.width) x = mainImg.width;
+          if (y < 0) y = 0;
+          if (y > mainImg.height) y = mainImg.height;
+
+          lastX = x;
+          lastY = y;
+
+          if (lens) {
+            lens.style.left = x - lens.offsetWidth / 2 + "px";
+            lens.style.top = y - lens.offsetHeight / 2 + "px";
+          }
+
+          updateZoomDisplay(x, y);
+        }
+
+        if (window.innerWidth >= 1024 && zoomContainer && mainImg && lens) {
+          zoomContainer.addEventListener("mouseenter", () => {
+            lens.style.display = "block";
+          });
+          zoomContainer.addEventListener("mouseleave", () => {
+            lens.style.display = "none";
+          });
+          zoomContainer.addEventListener("mousemove", moveLens);
+        } else if (zoomContainer) {
+          zoomContainer.addEventListener("click", () => {
+            const overlay = document.createElement("div");
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100%";
+            overlay.style.height = "100%";
+            overlay.style.backgroundColor = "rgba(0,0,0,0.9)";
+            overlay.style.display = "flex";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.zIndex = "99999";
+
+            const fullImg = document.createElement("img");
+            fullImg.src = mainImg.src;
+            fullImg.style.maxWidth = "90%";
+            fullImg.style.maxHeight = "90%";
+
+            overlay.appendChild(fullImg);
+            overlay.addEventListener("click", () => overlay.remove());
+            document.body.appendChild(overlay);
+          });
+        }
+
+        // ADD TO BAG click listener
+        const addBagBtn = document.getElementById("add-to-bag-page");
+        const toast = document.getElementById("toast-notify");
+        const toastText = document.getElementById("toast-text");
+
+        function fireToast(msg) {
+          if (!toast || !toastText) return;
+          toastText.textContent = msg;
+          toast.classList.add("active");
+          clearTimeout(toast._hideTimer);
+          toast._hideTimer = setTimeout(function () {
+            toast.classList.remove("active");
+          }, 2800);
+        }
+
+        if (addBagBtn) {
+          // Initial check: if already in cart, show "View Bag" immediately
+          try {
+            var initialCart =
+              JSON.parse(localStorage.getItem("hemora_cart")) || [];
+            var itemAlreadyInCart = initialCart.some(function (item) {
+              return item.id && item.id.indexOf("prod-" + product.id) === 0;
+            });
+            if (itemAlreadyInCart) {
+              addBagBtn.textContent = "View Bag";
+              addBagBtn.style.backgroundColor = "#A98A5B";
+            }
+          } catch (e) {}
+
+          addBagBtn.addEventListener("click", function () {
+            if (addBagBtn.textContent.trim() === "View Bag") {
+              window.location.href = "bag.html";
+              return;
+            }
+
+            try {
+              var activeSizeEl = document.querySelector(".size-btn.active");
+              var chosenSize = activeSizeEl
+                ? activeSizeEl.getAttribute("data-size")
+                : product.size || "Standard";
+
+              var itemId =
+                "prod-" + product.id + "-" + chosenSize.replace(/\s+/g, "-");
+              var itemName = product.name + " (" + chosenSize + ")";
+              var itemPrice = "₹" + product.price.toLocaleString("en-IN");
+              var itemImage = product.image;
+
+              var cart = [];
+              try {
+                cart = JSON.parse(localStorage.getItem("hemora_cart")) || [];
+              } catch (e) {
+                cart = [];
+              }
+
+              var found = false;
+              for (var i = 0; i < cart.length; i++) {
+                if (cart[i].id === itemId) {
+                  cart[i].quantity += 1;
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                cart.push({
+                  id: itemId,
+                  name: itemName,
+                  price: itemPrice,
+                  image: itemImage,
+                  quantity: 1,
+                });
+              }
+
+              localStorage.setItem("hemora_cart", JSON.stringify(cart));
+
+              if (window.updateCartCount) window.updateCartCount();
+
+              addBagBtn.textContent = "View Bag";
+              addBagBtn.style.backgroundColor = "#A98A5B";
+
+              fireToast("Added to Bag ✅");
+            } catch (err) {
+              console.error("Add to bag error:", err);
+              addBagBtn.textContent = "View Bag";
+              addBagBtn.style.backgroundColor = "#A98A5B";
+              fireToast("Added to Bag ✅");
+            }
+          });
+        }
+
+        // Place Order click listener
+        const placeOrderBtn = document.getElementById("place-order-page");
+        if (placeOrderBtn) {
+          placeOrderBtn.addEventListener("click", function () {
+            try {
+              var activeSizeEl = document.querySelector(".size-btn.active");
+              var chosenSize = activeSizeEl
+                ? activeSizeEl.getAttribute("data-size")
+                : product.size || "Standard";
+
+              var checkoutItem = {
+                id:
+                  "prod-" + product.id + "-" + chosenSize.replace(/\s+/g, "-"),
+                name: product.name,
+                price: "₹" + product.price.toLocaleString("en-IN"),
+                image: product.image,
+                size: chosenSize,
+                quantity: 1,
+              };
+
+              localStorage.setItem(
+                "hemora_checkout_item",
+                JSON.stringify(checkoutItem),
+              );
+              window.location.href = "payment.html";
+            } catch (err) {
+              console.error("Place order error:", err);
+              window.location.href = "payment.html";
+            }
+          });
+        }
+
+        // Wishlist button
+        const addWishBtn = document.getElementById("add-wish-page");
+        if (addWishBtn) {
+          addWishBtn.addEventListener("click", function () {
+            fireToast("♥ Saved to Wishlist!");
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

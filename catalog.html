@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hemora Jewellery — Traditional Gold Catalogue</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css?v=2" />
+    <style>
+      .catalog-container {
+        padding: 120px 0 80px;
+        background-color: var(--color-bg-light);
+      }
+      .catalog-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 32px;
+        align-items: start;
+      }
+      /* Filter Sidebar */
+      .filter-sidebar {
+        background-color: var(--color-white);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+      }
+      .filter-section {
+        margin-bottom: 24px;
+      }
+      .filter-section h4 {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        color: var(--color-text-dark);
+        margin-bottom: 12px;
+      }
+      .filter-divider {
+        border: none;
+        border-top: 1px solid var(--color-border);
+        margin: 16px 0;
+      }
+      .filter-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+        margin-bottom: 8px;
+        cursor: pointer;
+      }
+      .filter-option input {
+        accent-color: var(--color-primary-dark);
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+      /* Results Grid */
+      .results-section {
+        flex-grow: 1;
+      }
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+      .results-count {
+        font-size: 0.95rem;
+        color: var(--color-text-muted);
+        font-weight: 500;
+      }
+      .grid-listing {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      /* Product Cards on Listing */
+      .catalog-card {
+        background-color: var(--color-white);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        position: relative;
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition-base);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .catalog-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+      }
+      .catalog-card__badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background-color: var(--color-primary-dark);
+        color: var(--color-bg-light);
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: var(--radius-sm);
+        text-transform: uppercase;
+        z-index: 5;
+      }
+      .catalog-card__img-wrap {
+        aspect-ratio: 1;
+        overflow: hidden;
+        background-color: var(--color-bg-beige);
+      }
+      .catalog-card__img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--transition-slow);
+      }
+      .catalog-card:hover .catalog-card__img-wrap img {
+        transform: scale(1.04);
+      }
+      .catalog-card__info {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .catalog-card__brand {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--color-text-muted);
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .catalog-card__name {
+        font-family: var(--font-heading);
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--color-text-dark);
+        margin-bottom: 8px;
+        flex-grow: 1;
+      }
+      .catalog-card__price {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-primary-dark);
+        margin-bottom: 12px;
+      }
+      .catalog-card__price del {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        margin-right: 6px;
+        font-weight: 400;
+      }
+      .catalog-card__discount {
+        font-size: 0.75rem;
+        color: var(--color-accent);
+        font-weight: 600;
+        margin-left: 6px;
+      }
+      .catalog-card__actions {
+        display: flex;
+        gap: 8px;
+      }
+      .catalog-card__wishlist {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-full);
+        background-color: var(--color-bg-beige);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-text-muted);
+        transition: all var(--transition-fast);
+      }
+      .catalog-card__wishlist:hover {
+        color: var(--color-accent);
+        background-color: rgba(196, 30, 58, 0.1);
+      }
+      .catalog-card__wishlist.active {
+        color: var(--color-accent);
+      }
+      .catalog-card__wishlist.active svg {
+        fill: var(--color-accent);
+      }
+
+      /* Simplified Nav */
+      .simplified-nav {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 70px;
+        border-bottom: 1px solid var(--color-border);
+        background-color: var(--color-bg-light);
+        z-index: 100;
+      }
+      .simplified-nav__container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        max-width: var(--container-max);
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .simplified-nav__back {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 1px;
+        color: var(--color-primary-dark);
+      }
+      .simplified-nav__back:hover {
+        color: var(--color-text-dark);
+      }
+
+      /* Toast notification */
+      .toast-notify {
+        position: fixed;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background-color: var(--color-bg-dark);
+        color: var(--color-text-light);
+        padding: 14px 28px;
+        border-radius: var(--radius-full);
+        font-size: 0.9rem;
+        font-weight: 600;
+        z-index: 2000;
+        box-shadow: var(--shadow-lg);
+        opacity: 0;
+        transition:
+          transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+          opacity 0.4s;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .toast-notify.active {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+      .toast-notify svg {
+        color: var(--color-primary);
+      }
+
+      @media (min-width: 768px) {
+        .catalog-layout {
+          grid-template-columns: 280px 1fr;
+        }
+        .grid-listing {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============================================ -->
+    <!-- UTILITY BAR (NIKE STYLE)                     -->
+    <!-- ============================================ -->
+    <div class="utility-bar">
+      <div class="container utility-bar__inner" id="utility-bar-inner">
+        <a href="terms.html">Help</a>
+        <span class="utility-bar__divider">|</span>
+        <a href="javascript:void(0)" id="utility-join">Join Us</a>
+        <span class="utility-bar__divider">|</span>
+        <a href="javascript:void(0)" id="utility-login">Sign In</a>
+      </div>
+    </div>
+
+    <!-- Simplified Navbar -->
+    <header class="simplified-nav">
+      <div class="simplified-nav__container">
+        <a
+          href="index.html"
+          class="navbar__logo"
+          style="display: inline-flex; align-items: center; gap: 8px"
+        >
+          <svg
+            class="logo-emblem"
+            viewBox="0 0 64 64"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            width="28"
+            height="28"
+            style="color: var(--color-primary-dark)"
+          >
+            <circle cx="32" cy="32" r="6" />
+            <path d="M32 12c-4 6-4 10 0 14 4-4 4-8 0-14z" />
+            <path d="M32 52c-4-6-4-10 0-14 4 4 4 8 0 14z" />
+            <path d="M12 32c6-4 10-4 14 0-4 4-8 4-14 0z" />
+            <path d="M52 32c-6-4-10-4-14 0 4 4 8 4 14 0z" />
+            <path d="M18 18c5 2 8 5 10 10-2-5-5-8-10-10z" />
+            <path d="M46 46c-5-2-8-5-10-10 2 5 5 8 10 10z" />
+            <path d="M46 18c-2 5-5 8-10 10 5-2 8-5 10-10z" />
+            <path d="M18 46c2-5 5-8 10-10-5 2-8 5-10 10z" />
+          </svg>
+          Hemora Jewellery
+        </a>
+        <a href="index.html" class="simplified-nav__back">← Back to Store</a>
+      </div>
+    </header>
+
+    <!-- Catalog Page Main -->
+    <main class="catalog-container">
+      <div class="container">
+        <div class="catalog-layout">
+          <!-- Left Filter Panel -->
+          <aside class="filter-sidebar">
+            <!-- Sort By -->
+            <div class="filter-section">
+              <h4>Sort By</h4>
+              <label class="filter-option">
+                <input type="radio" name="sort" value="featured" checked />
+                <span>Featured</span>
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort" value="newest" />
+                <span>Newest</span>
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort" value="price-low" />
+                <span>Price: Low to High</span>
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort" value="price-high" />
+                <span>Price: High to Low</span>
+              </label>
+            </div>
+
+            <hr class="filter-divider" />
+
+            <!-- Gender -->
+            <div class="filter-section">
+              <h4>Gender</h4>
+              <label class="filter-option">
+                <input
+                  type="checkbox"
+                  name="gender"
+                  value="female"
+                  id="filter-female"
+                />
+                <span>Female</span>
+              </label>
+              <label class="filter-option">
+                <input
+                  type="checkbox"
+                  name="gender"
+                  value="male"
+                  id="filter-male"
+                />
+                <span>Male</span>
+              </label>
+            </div>
+
+            <hr class="filter-divider" />
+
+            <!-- Sizes -->
+            <div class="filter-section">
+              <h4>Sizes</h4>
+              <label class="filter-option">
+                <input type="checkbox" name="size" value="14 Inch" />
+                <span>14" (Choker)</span>
+              </label>
+              <label class="filter-option">
+                <input type="checkbox" name="size" value="16 Inch" />
+                <span>16" (Necklace)</span>
+              </label>
+              <label class="filter-option">
+                <input type="checkbox" name="size" value="18 Inch" />
+                <span>18" (Standard)</span>
+              </label>
+              <label class="filter-option">
+                <input type="checkbox" name="size" value="20 Inch" />
+                <span>20" (Haram)</span>
+              </label>
+              <label class="filter-option">
+                <input type="checkbox" name="size" value="22 Inch" />
+                <span>22" (Heavy Haram)</span>
+              </label>
+            </div>
+
+            <hr class="filter-divider" />
+
+            <!-- Shop by Price -->
+            <div class="filter-section">
+              <h4>Shop by Price</h4>
+              <label class="filter-option">
+                <input type="checkbox" name="price" value="under-50k" />
+                <span>Under ₹50,000</span>
+              </label>
+              <label class="filter-option">
+                <input type="checkbox" name="price" value="50k-100k" />
+                <span>₹50,000 - ₹1,00,000</span>
+              </label>
+              <label class="filter-option">
+                <input type="checkbox" name="price" value="100k-200k" />
+                <span>₹1,00,000 - ₹2,00,000</span>
+              </label>
+              <label class="filter-option">
+                <input type="checkbox" name="price" value="above-200k" />
+                <span>Above ₹2,00,000</span>
+              </label>
+            </div>
+
+            <hr class="filter-divider" />
+
+            <!-- Launch Date -->
+            <div class="filter-section">
+              <h4>New Releases</h4>
+              <label class="filter-option">
+                <input type="checkbox" name="release" value="7-days" />
+                <span>Last 7 Days</span>
+              </label>
+              <label class="filter-option">
+                <input type="checkbox" name="release" value="30-days" />
+                <span>Last 30 Days</span>
+              </label>
+            </div>
+
+            <hr class="filter-divider" />
+
+            <!-- Discounts -->
+            <div class="filter-section">
+              <h4>Discounts</h4>
+              <label class="filter-option">
+                <input type="checkbox" name="discount" value="10-percent" />
+                <span>10% and Above</span>
+              </label>
+            </div>
+          </aside>
+
+          <!-- Right Results Grid -->
+          <section class="results-section">
+            <div class="results-header">
+              <span class="results-count" id="results-count"
+                >Showing all products</span
+              >
+            </div>
+
+            <div class="grid-listing" id="product-grid">
+              <!-- 25 items generated dynamically via JS below -->
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div class="toast-notify" id="toast-notify">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3"
+      >
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      <span id="toast-text">Added to Bag Successfully!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container" style="text-align: center; padding: 40px 0">
+        <a href="#" class="footer__logo">Hemora Jewellery</a>
+        <p style="font-size: 0.85rem; opacity: 0.6; margin-top: 10px">
+          &copy; 2025 Hemora Jewellery Jewels Pvt. Ltd. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <!-- AUTHENTICATION MODAL — SOLID TWO-VIEW DESIGN -->
+    <div class="auth-overlay" id="auth-overlay"></div>
+    <div
+      class="auth-modal"
+      id="auth-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+    >
+      <button
+        class="auth-modal__close"
+        id="auth-close"
+        aria-label="Close modal"
+      >
+        &times;
+      </button>
+      <div class="auth-modal__container">
+        <!-- ===== SIGN IN VIEW ===== -->
+        <div class="auth-view active" id="auth-signin-view">
+          <div class="auth-brand">
+            <svg
+              viewBox="0 0 64 64"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              width="36"
+              height="36"
+            >
+              <circle cx="32" cy="32" r="6" />
+              <path d="M32 12c-4 6-4 10 0 14 4-4 4-8 0-14z" />
+              <path d="M32 52c-4-6-4-10 0-14 4 4 8 8 0 14z" />
+              <path d="M12 32c6-4 10-4 14 0-4 4-8 4-14 0z" />
+              <path d="M52 32c-6-4-10-4-14 0 4 4 8 4 14 0z" />
+            </svg>
+            <span>Hemora</span>
+          </div>
+          <h2 id="auth-modal-title">Welcome Back</h2>
+          <p class="auth-subtitle">
+            Sign in to manage your favorites and secure checkout.
+          </p>
+          <form id="signin-form" novalidate>
+            <div class="form-group" style="margin-bottom: 20px">
+              <label
+                for="signin-email"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="signin-email"
+                placeholder="name@example.com"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1px solid var(--color-border);
+                  border-radius: 9999px;
+                  font-size: 0.9rem;
+                  background-color: var(--color-bg-beige);
+                "
+              />
+            </div>
+            <div
+              class="form-group form-group--password"
+              style="margin-bottom: 20px"
+            >
+              <label
+                for="signin-password"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Password</label
+              >
+              <div
+                class="password-wrapper"
+                style="position: relative; display: flex; align-items: center"
+              >
+                <input
+                  type="password"
+                  id="signin-password"
+                  placeholder="Enter your password"
+                  required
+                  style="
+                    width: 100%;
+                    padding: 12px 48px 12px 16px;
+                    border: 1px solid var(--color-border);
+                    border-radius: 9999px;
+                    font-size: 0.9rem;
+                    background-color: var(--color-bg-beige);
+                  "
+                />
+                <button
+                  type="button"
+                  class="toggle-pw"
+                  data-target="signin-password"
+                  tabindex="-1"
+                  aria-label="Show password"
+                  style="
+                    position: absolute;
+                    right: 12px;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: var(--color-text-muted);
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div
+              class="form-options"
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin: 10px 0 20px;
+                font-size: 0.85rem;
+              "
+            >
+              <label
+                class="checkbox-label"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  color: var(--color-text-muted);
+                  cursor: pointer;
+                "
+              >
+                <input
+                  type="checkbox"
+                  id="signin-remember"
+                  style="accent-color: var(--color-primary-dark)"
+                />
+                Remember me
+              </label>
+              <a
+                href="javascript:void(0)"
+                class="forgot-link"
+                style="color: var(--color-primary-dark); font-weight: 600"
+                >Forgot Password?</a
+              >
+            </div>
+            <button
+              type="submit"
+              class="btn btn--primary btn--full auth-submit-btn"
+              style="
+                width: 100%;
+                padding: 14px;
+                font-weight: 700;
+                border-radius: 9999px;
+                cursor: pointer;
+              "
+            >
+              Sign In
+            </button>
+          </form>
+          <div
+            class="auth-divider"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin: 20px 0 12px;
+              color: var(--color-text-muted);
+              font-size: 0.8rem;
+            "
+          >
+            <span>New to Hemora?</span>
+          </div>
+          <p
+            class="auth-modal__switch"
+            style="
+              margin-top: 16px;
+              text-align: center;
+              font-size: 0.85rem;
+              color: var(--color-text-muted);
+            "
+          >
+            Don't have an account?
+            <a
+              href="javascript:void(0)"
+              id="switch-to-signup"
+              style="
+                color: var(--color-primary-dark);
+                font-weight: 700;
+                text-decoration: underline;
+              "
+              >Join Us</a
+            >
+          </p>
+        </div>
+
+        <!-- ===== SIGN UP VIEW ===== -->
+        <div class="auth-view" id="auth-signup-view">
+          <div class="auth-brand">
+            <svg
+              viewBox="0 0 64 64"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              width="36"
+              height="36"
+            >
+              <circle cx="32" cy="32" r="6" />
+              <path d="M32 12c-4 6-4 10 0 14 4-4 4-8 0-14z" />
+              <path d="M32 52c-4-6-4-10 0-14 4 4 8 8 0 14z" />
+              <path d="M12 32c6-4 10-4 14 0-4 4-8 4-14 0z" />
+              <path d="M52 32c-6-4-10-4-14 0 4 4 8 4 14 0z" />
+            </svg>
+            <span>Hemora</span>
+          </div>
+          <h2>Create Account</h2>
+          <p class="auth-subtitle">
+            Join Hemora Jewellery for exclusive rewards and collections.
+          </p>
+          <form id="signup-form" novalidate>
+            <div class="form-group" style="margin-bottom: 16px">
+              <label
+                for="signup-name"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Full Name</label
+              >
+              <input
+                type="text"
+                id="signup-name"
+                placeholder="First and last name"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1px solid var(--color-border);
+                  border-radius: 9999px;
+                  font-size: 0.9rem;
+                  background-color: var(--color-bg-beige);
+                "
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 16px">
+              <label
+                for="signup-email"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="signup-email"
+                placeholder="name@example.com"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1px solid var(--color-border);
+                  border-radius: 9999px;
+                  font-size: 0.9rem;
+                  background-color: var(--color-bg-beige);
+                "
+              />
+            </div>
+            <div
+              class="form-group form-group--password"
+              style="margin-bottom: 20px"
+            >
+              <label
+                for="signup-password"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Password</label
+              >
+              <div
+                class="password-wrapper"
+                style="position: relative; display: flex; align-items: center"
+              >
+                <input
+                  type="password"
+                  id="signup-password"
+                  placeholder="Create secure password"
+                  required
+                  style="
+                    width: 100%;
+                    padding: 12px 48px 12px 16px;
+                    border: 1px solid var(--color-border);
+                    border-radius: 9999px;
+                    font-size: 0.9rem;
+                    background-color: var(--color-bg-beige);
+                  "
+                />
+                <button
+                  type="button"
+                  class="toggle-pw"
+                  data-target="signup-password"
+                  tabindex="-1"
+                  aria-label="Show password"
+                  style="
+                    position: absolute;
+                    right: 12px;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: var(--color-text-muted);
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <p
+              class="auth-terms-note"
+              style="
+                font-size: 0.78rem;
+                color: var(--color-text-muted);
+                margin-bottom: 16px;
+                line-height: 1.5;
+              "
+            >
+              By creating an account, you agree to Hemora's
+              <a
+                href="terms.html"
+                style="
+                  color: var(--color-primary-dark);
+                  text-decoration: underline;
+                "
+                >Privacy Policy</a
+              >
+              and
+              <a
+                href="terms.html"
+                style="
+                  color: var(--color-primary-dark);
+                  text-decoration: underline;
+                "
+                >Terms of Use</a
+              >.
+            </p>
+            <button
+              type="submit"
+              class="btn btn--primary btn--full auth-submit-btn"
+              style="
+                width: 100%;
+                padding: 14px;
+                font-weight: 700;
+                border-radius: 9999px;
+                cursor: pointer;
+              "
+            >
+              Create Account
+            </button>
+          </form>
+          <div
+            class="auth-divider"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin: 20px 0 12px;
+              color: var(--color-text-muted);
+              font-size: 0.8rem;
+            "
+          >
+            <span>Already a member?</span>
+          </div>
+          <p
+            class="auth-modal__switch"
+            style="
+              margin-top: 16px;
+              text-align: center;
+              font-size: 0.85rem;
+              color: var(--color-text-muted);
+            "
+          >
+            Already have an account?
+            <a
+              href="javascript:void(0)"
+              id="switch-to-signin"
+              style="
+                color: var(--color-primary-dark);
+                font-weight: 700;
+                text-decoration: underline;
+              "
+              >Sign In</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEO LIGHTBOX MODAL -->
+    <div class="video-lightbox" id="video-lightbox">
+      <button
+        class="video-lightbox__close"
+        id="video-lightbox-close"
+        aria-label="Close video player"
+      >
+        &times;
+      </button>
+      <div class="video-lightbox__content">
+        <video id="lightbox-video" controls>
+          <source src="" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+
+    <script src="products_database.js"></script>
+    <script src="script.js?v=2"></script>
+  </body>
+</html>

@@ -1,0 +1,1413 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure Checkout — AURÈLIA</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css?v=2" />
+
+    <style>
+      body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+      }
+
+      .checkout-container {
+        max-width: 1100px;
+        margin: 120px auto 60px;
+        padding: 0 24px;
+      }
+
+      .checkout-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 40px;
+        margin-top: 40px;
+      }
+
+      @media (min-width: 1024px) {
+        .checkout-grid {
+          grid-template-columns: 1.6fr 1fr;
+        }
+      }
+
+      .checkout-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--color-border);
+      }
+
+      .checkout-card h3 {
+        font-size: 1.4rem;
+        margin-bottom: 24px;
+        color: var(--color-text-dark);
+        border-bottom: 1px solid var(--color-border);
+        padding-bottom: 12px;
+        font-family: var(--font-heading);
+        font-weight: 600;
+      }
+
+      /* Payment Methods */
+      .payment-tabs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+      }
+
+      .pay-tab {
+        flex: 1;
+        min-width: 100px;
+        padding: 14px 10px;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        background: var(--color-bg);
+        cursor: pointer;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-text-muted);
+      }
+
+      .pay-tab svg {
+        color: var(--color-text-muted);
+      }
+
+      .pay-tab.active {
+        border-color: var(--color-primary-dark);
+        background: #faf6f0;
+        color: var(--color-primary-dark);
+      }
+
+      .pay-tab.active svg {
+        color: var(--color-primary-dark);
+      }
+
+      .pay-pane {
+        display: none;
+      }
+
+      .pay-pane.active {
+        display: block;
+      }
+
+      /* Form Inputs */
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      @media (min-width: 576px) {
+        .form-row.two-col {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .checkout-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .checkout-input-group label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--color-text-dark);
+      }
+
+      .checkout-input-group input,
+      .checkout-input-group select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--color-border);
+        border-radius: 9999px;
+        font-size: 0.9rem;
+        background: var(--color-bg);
+        color: var(--color-text-dark);
+        transition: border-color 0.2s;
+      }
+
+      .checkout-input-group input:focus,
+      .checkout-input-group select:focus {
+        border-color: var(--color-primary-dark);
+        outline: none;
+      }
+
+      /* QR Code Styling */
+      .qr-box {
+        text-align: center;
+        padding: 24px;
+        background: var(--color-bg);
+        border-radius: 16px;
+        border: 1px dashed var(--color-border);
+      }
+
+      .qr-placeholder {
+        width: 160px;
+        height: 160px;
+        margin: 0 auto 16px;
+        background: #ffffff;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-sm);
+      }
+
+      /* Order Summary Items */
+      .checkout-item-row {
+        display: flex;
+        gap: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--color-border);
+        margin-bottom: 16px;
+      }
+
+      .checkout-item-img {
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+        object-fit: cover;
+        background-color: var(--color-bg-beige);
+      }
+
+      .checkout-item-details {
+        flex-grow: 1;
+      }
+
+      .checkout-item-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--color-text-dark);
+        margin-bottom: 4px;
+      }
+
+      .checkout-item-meta {
+        font-size: 0.8rem;
+        color: var(--color-text-muted);
+      }
+
+      .checkout-item-price {
+        font-weight: 600;
+        color: var(--color-primary-dark);
+        font-size: 0.95rem;
+        margin-top: 4px;
+      }
+
+      .price-summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+      }
+
+      .price-summary-row.total-row {
+        border-top: 1px solid var(--color-border);
+        padding-top: 16px;
+        margin-top: 16px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--color-text-dark);
+      }
+
+      .price-summary-row.total-row span:last-child {
+        color: var(--color-primary-dark);
+      }
+
+      /* Premium Overlay Loader */
+      .payment-loader {
+        position: fixed;
+        inset: 0;
+        background: rgba(26, 20, 16, 0.96);
+        z-index: 15000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #ffffff;
+        font-family: var(--font-heading);
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      .payment-loader.active {
+        display: flex;
+        opacity: 1;
+      }
+
+      .gold-spinner {
+        width: 60px;
+        height: 60px;
+        border: 3px solid rgba(184, 134, 11, 0.2);
+        border-radius: 50%;
+        border-top-color: var(--color-primary-light);
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 24px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .payment-success-msg {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .success-tick {
+        width: 72px;
+        height: 72px;
+        background: var(--color-primary-dark);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 24px rgba(184, 134, 11, 0.4);
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- UTILITY BAR (NIKE STYLE) -->
+    <div class="utility-bar">
+      <div class="container utility-bar__inner" id="utility-bar-inner">
+        <a href="terms.html">Help</a>
+        <span class="utility-bar__divider">|</span>
+        <a href="javascript:void(0)" id="utility-join">Join Us</a>
+        <span class="utility-bar__divider">|</span>
+        <a href="javascript:void(0)" id="utility-login">Sign In</a>
+      </div>
+    </div>
+
+    <!-- Simplified Header -->
+    <header
+      class="navbar"
+      id="navbar"
+      style="
+        height: 80px;
+        position: fixed;
+        background-color: var(--color-white);
+        border-bottom: 1px solid var(--color-border);
+        z-index: 1000;
+        top: 0;
+        left: 0;
+        right: 0;
+      "
+    >
+      <div
+        class="navbar__container"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+          height: 100%;
+        "
+      >
+        <a
+          href="index.html"
+          class="navbar__logo"
+          style="
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+          "
+        >
+          <svg
+            class="logo-emblem"
+            viewBox="0 0 64 64"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            width="28"
+            height="28"
+            style="color: var(--color-primary-dark)"
+          >
+            <circle cx="32" cy="32" r="6" />
+            <path d="M32 12c-4 6-4 10 0 14 4-4 4-8 0-14z" />
+            <path d="M32 52c-4-6-4-10 0-14 4 4 4 8 0 14z" />
+            <path d="M12 32c6-4 10-4 14 0-4 4-8 4-14 0z" />
+            <path d="M52 32c-6-4-10-4-14 0 4 4 8 4 14 0z" />
+            <path d="M18 18c5 2 8 5 10 10-2-5-5-8-10-10z" />
+            <path d="M46 46c-5-2-8-5-10-10 2 5 5 8 10 10z" />
+            <path d="M46 18c-2 5-5 8-10 10 5-2 8-5 10-10z" />
+            <path d="M18 46c2-5 5-8 10-10-5 2-8 5-10 10z" />
+          </svg>
+          Hemora Jewellery
+        </a>
+        <a
+          href="javascript:history.back()"
+          style="
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--color-text-dark);
+            text-decoration: none;
+          "
+          >← Return to Shop</a
+        >
+      </div>
+    </header>
+
+    <div class="checkout-container">
+      <h2
+        style="
+          font-family: var(--font-heading);
+          font-size: 2rem;
+          color: var(--color-text-dark);
+          text-align: center;
+          margin-bottom: 8px;
+        "
+      >
+        Secure Payment
+      </h2>
+      <p
+        style="
+          text-align: center;
+          font-size: 0.95rem;
+          color: var(--color-text-muted);
+          margin-bottom: 40px;
+        "
+      >
+        Complete your purchase with secure bank-grade transmission.
+      </p>
+
+      <div class="checkout-grid">
+        <!-- Left Panel: Payment details -->
+        <div class="checkout-card">
+          <h3>Select Payment Method</h3>
+
+          <div class="payment-tabs">
+            <button class="pay-tab active" data-target="card-pane">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                <line x1="1" y1="10" x2="23" y2="10" />
+              </svg>
+              Card
+            </button>
+            <button class="pay-tab" data-target="upi-pane">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                />
+                <path d="M22 6l-10 7L2 6" />
+              </svg>
+              UPI
+            </button>
+            <button class="pay-tab" data-target="net-pane">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                <line x1="2" y1="21" x2="22" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+              </svg>
+              Netbanking
+            </button>
+            <button class="pay-tab" data-target="cod-pane">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+                />
+              </svg>
+              COD
+            </button>
+          </div>
+
+          <!-- Card pane -->
+          <div class="pay-pane active" id="card-pane">
+            <form id="card-payment-form">
+              <div class="form-row">
+                <div class="checkout-input-group">
+                  <label for="card-num">Cardholder Name</label>
+                  <input
+                    type="text"
+                    id="card-name"
+                    placeholder="Name as on card"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="checkout-input-group">
+                  <label for="card-num">Card Number</label>
+                  <input
+                    type="text"
+                    id="card-num"
+                    placeholder="XXXX XXXX XXXX XXXX"
+                    maxlength="19"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="form-row two-col">
+                <div class="checkout-input-group">
+                  <label for="card-expiry">Expiry Date</label>
+                  <input
+                    type="text"
+                    id="card-expiry"
+                    placeholder="MM/YY"
+                    maxlength="5"
+                    required
+                  />
+                </div>
+                <div class="checkout-input-group">
+                  <label for="card-cvv">CVV</label>
+                  <input
+                    type="password"
+                    id="card-cvv"
+                    placeholder="•••"
+                    maxlength="3"
+                    required
+                  />
+                </div>
+              </div>
+              <button
+                type="submit"
+                class="btn btn--primary btn--full"
+                style="margin-top: 20px; padding: 14px; border-radius: 9999px"
+              >
+                Pay Securely
+              </button>
+            </form>
+          </div>
+
+          <!-- UPI pane -->
+          <div class="pay-pane" id="upi-pane">
+            <div class="qr-box">
+              <div class="qr-placeholder">
+                <!-- Simulated Dynamic QR Code via Inline SVG -->
+                <svg
+                  width="120"
+                  height="120"
+                  viewBox="0 0 29 29"
+                  shape-rendering="crispEdges"
+                >
+                  <path
+                    fill="#0F172A"
+                    d="M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0zm9 0h2v2H9zm2 2h2v3h-2zm2-2h2v2h-2zm2 2h2v3h-2zm2-2h2v2h-2zm2 2h2v3h-2zm2-2h2v2H9v3h2v-1h2v1h2v-2h2v2h2v-2h2v-2h-3v-2h3zm-4 4h2v2h-2zm-6-8h2v2H9zm2 2h2v2h-2zm2-2h2v2h-2zm2 2h2v2h-2zm2-2h2v2h-2zm4-4h2v2h-2zm-2 2h2v2h-2zm2-4h2v2h-2zm-4 0h2v2h-2zm-4 0h2v2h-2zm-2-2h2v2h-2zm-4 0h2v2H9zm2 2h2v2h-2zm-4-4h2v2H7zm4 0h2v2h-2zm2-2h2v2h-2zM2 2h3v3H2zm20 0h3v3h-3zM2 24h3v3H2z"
+                  />
+                </svg>
+              </div>
+              <h4
+                style="
+                  font-size: 1rem;
+                  color: var(--color-text-dark);
+                  margin-bottom: 6px;
+                "
+              >
+                Scan to Pay with Any UPI App
+              </h4>
+              <p
+                style="
+                  font-size: 0.85rem;
+                  color: var(--color-text-muted);
+                  margin-bottom: 20px;
+                "
+              >
+                Open GooglePay, PhonePe, Paytm, or BHIM to scan and complete
+                transaction.
+              </p>
+
+              <div
+                class="checkout-input-group"
+                style="text-align: left; max-width: 320px; margin: 0 auto 16px"
+              >
+                <label
+                  for="upi-id"
+                  style="text-align: center; display: block; margin-bottom: 6px"
+                  >Or Enter UPI ID</label
+                >
+                <input
+                  type="text"
+                  id="upi-id"
+                  placeholder="username@upi"
+                  style="text-align: center"
+                />
+              </div>
+              <button
+                type="button"
+                class="btn btn--primary btn--full"
+                id="upi-pay-btn"
+                style="
+                  max-width: 320px;
+                  margin: 0 auto;
+                  padding: 12px;
+                  border-radius: 9999px;
+                "
+              >
+                Verify & Pay
+              </button>
+            </div>
+          </div>
+
+          <!-- Netbanking pane -->
+          <div class="pay-pane" id="net-pane">
+            <form id="net-payment-form">
+              <div class="checkout-input-group" style="margin-bottom: 24px">
+                <label for="bank-select">Select Your Bank</label>
+                <select id="bank-select" required>
+                  <option value="" disabled selected>
+                    Choose popular bank
+                  </option>
+                  <option value="sbi">State Bank of India</option>
+                  <option value="hdfc">HDFC Bank</option>
+                  <option value="icici">ICICI Bank</option>
+                  <option value="axis">Axis Bank</option>
+                  <option value="kotak">Kotak Mahindra Bank</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                class="btn btn--primary btn--full"
+                style="padding: 14px; border-radius: 9999px"
+              >
+                Proceed to Netbanking
+              </button>
+            </form>
+          </div>
+
+          <!-- COD pane -->
+          <div class="pay-pane" id="cod-pane">
+            <div
+              style="
+                text-align: center;
+                padding: 24px;
+                background: var(--color-bg);
+                border-radius: 16px;
+                border: 1px solid var(--color-border);
+              "
+            >
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                style="color: var(--color-primary-dark); margin-bottom: 16px"
+              >
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+              </svg>
+              <h4
+                style="
+                  font-size: 1rem;
+                  color: var(--color-text-dark);
+                  margin-bottom: 6px;
+                "
+              >
+                Cash on Delivery (COD)
+              </h4>
+              <p
+                style="
+                  font-size: 0.85rem;
+                  color: var(--color-text-muted);
+                  margin-bottom: 24px;
+                  max-width: 400px;
+                  margin-left: auto;
+                  margin-right: auto;
+                "
+              >
+                Pay with cash or digital code upon package delivery. Free
+                delivery is fully covered.
+              </p>
+              <button
+                type="button"
+                class="btn btn--primary btn--full"
+                id="cod-pay-btn"
+                style="
+                  max-width: 320px;
+                  margin: 0 auto;
+                  padding: 14px;
+                  border-radius: 9999px;
+                "
+              >
+                Confirm COD Order
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel: Order Summary -->
+        <div class="checkout-card" style="height: fit-content">
+          <h3>Order Summary</h3>
+          <div id="checkout-summary-body">
+            <!-- Loaded dynamically -->
+          </div>
+
+          <div style="margin-top: 24px">
+            <div class="price-summary-row">
+              <span>Items Subtotal</span>
+              <span id="summary-subtotal">₹0</span>
+            </div>
+            <div class="price-summary-row">
+              <span>Insured Delivery</span>
+              <span style="color: #22c55e; font-weight: 600">FREE</span>
+            </div>
+            <div class="price-summary-row">
+              <span>GST & Hallmarking charges</span>
+              <span>Included</span>
+            </div>
+            <div class="price-summary-row total-row">
+              <span>Total amount to be paid</span>
+              <span id="summary-total">₹0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment loading overlay screen -->
+    <div class="payment-loader" id="payment-loader">
+      <div class="gold-spinner"></div>
+      <h3
+        id="loader-title"
+        style="font-size: 1.5rem; margin-bottom: 8px; font-weight: 500"
+      >
+        Securing Connection...
+      </h3>
+      <p
+        id="loader-subtitle"
+        style="font-size: 0.9rem; opacity: 0.7; max-width: 300px"
+      >
+        Transmitting transaction details to bank gateway...
+      </p>
+
+      <!-- Success block -->
+      <div class="payment-success-msg" id="payment-success-msg">
+        <div class="success-tick">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <h3
+          style="
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            color: var(--color-primary-light);
+          "
+        >
+          Order Confirmed!
+        </h3>
+        <p
+          style="
+            font-size: 0.95rem;
+            opacity: 0.8;
+            max-width: 320px;
+            margin-bottom: 30px;
+          "
+        >
+          Your secure payment was accepted. Thank you for choosing Hemora
+          Jewellery!
+        </p>
+        <button
+          class="btn btn--primary"
+          id="success-return-btn"
+          style="padding: 12px 30px; border-radius: 9999px"
+        >
+          Continue Shopping
+        </button>
+      </div>
+    </div>
+
+    <!-- Standard dynamic auth modal and closing script injected by standardize tools -->
+    <!-- AUTHENTICATION MODAL — SOLID TWO-VIEW DESIGN -->
+    <div class="auth-overlay" id="auth-overlay"></div>
+    <div
+      class="auth-modal"
+      id="auth-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+    >
+      <button
+        class="auth-modal__close"
+        id="auth-close"
+        aria-label="Close modal"
+      >
+        &times;
+      </button>
+      <div class="auth-modal__container">
+        <!-- ===== SIGN IN VIEW ===== -->
+        <div class="auth-view active" id="auth-signin-view">
+          <div class="auth-brand">
+            <svg
+              viewBox="0 0 64 64"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              width="36"
+              height="36"
+            >
+              <circle cx="32" cy="32" r="6" />
+              <path d="M32 12c-4 6-4 10 0 14 4-4 4-8 0-14z" />
+              <path d="M32 52c-4-6-4-10 0-14 4 4 8 8 0 14z" />
+              <path d="M12 32c6-4 10-4 14 0-4 4-8 4-14 0z" />
+              <path d="M52 32c-6-4-10-4-14 0 4 4 8 4 14 0z" />
+            </svg>
+            <span>Hemora</span>
+          </div>
+          <h2 id="auth-modal-title">Welcome Back</h2>
+          <p class="auth-subtitle">
+            Sign in to manage your favorites and secure checkout.
+          </p>
+          <form id="signin-form" novalidate>
+            <div class="form-group" style="margin-bottom: 20px">
+              <label
+                for="signin-email"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="signin-email"
+                placeholder="name@example.com"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1px solid var(--color-border);
+                  border-radius: 9999px;
+                  font-size: 0.9rem;
+                  background-color: var(--color-bg-beige);
+                "
+              />
+            </div>
+            <div
+              class="form-group form-group--password"
+              style="margin-bottom: 20px"
+            >
+              <label
+                for="signin-password"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Password</label
+              >
+              <div
+                class="password-wrapper"
+                style="position: relative; display: flex; align-items: center"
+              >
+                <input
+                  type="password"
+                  id="signin-password"
+                  placeholder="Enter your password"
+                  required
+                  style="
+                    width: 100%;
+                    padding: 12px 48px 12px 16px;
+                    border: 1px solid var(--color-border);
+                    border-radius: 9999px;
+                    font-size: 0.9rem;
+                    background-color: var(--color-bg-beige);
+                  "
+                />
+                <button
+                  type="button"
+                  class="toggle-pw"
+                  data-target="signin-password"
+                  tabindex="-1"
+                  aria-label="Show password"
+                  style="
+                    position: absolute;
+                    right: 12px;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: var(--color-text-muted);
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div
+              class="form-options"
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin: 10px 0 20px;
+                font-size: 0.85rem;
+              "
+            >
+              <label
+                class="checkbox-label"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  color: var(--color-text-muted);
+                  cursor: pointer;
+                "
+              >
+                <input
+                  type="checkbox"
+                  id="signin-remember"
+                  style="accent-color: var(--color-primary-dark)"
+                />
+                Remember me
+              </label>
+              <a
+                href="javascript:void(0)"
+                class="forgot-link"
+                style="color: var(--color-primary-dark); font-weight: 600"
+                >Forgot Password?</a
+              >
+            </div>
+            <button
+              type="submit"
+              class="btn btn--primary btn--full auth-submit-btn"
+              style="
+                width: 100%;
+                padding: 14px;
+                font-weight: 700;
+                border-radius: 9999px;
+                cursor: pointer;
+              "
+            >
+              Sign In
+            </button>
+          </form>
+          <div
+            class="auth-divider"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin: 20px 0 12px;
+              color: var(--color-text-muted);
+              font-size: 0.8rem;
+            "
+          >
+            <span>New to Hemora?</span>
+          </div>
+          <p
+            class="auth-modal__switch"
+            style="
+              margin-top: 16px;
+              text-align: center;
+              font-size: 0.85rem;
+              color: var(--color-text-muted);
+            "
+          >
+            Don't have an account?
+            <a
+              href="javascript:void(0)"
+              id="switch-to-signup"
+              style="
+                color: var(--color-primary-dark);
+                font-weight: 700;
+                text-decoration: underline;
+              "
+              >Join Us</a
+            >
+          </p>
+        </div>
+        <!-- ===== SIGN UP VIEW ===== -->
+        <div class="auth-view" id="auth-signup-view">
+          <div class="auth-brand">
+            <svg
+              viewBox="0 0 64 64"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              width="36"
+              height="36"
+            >
+              <circle cx="32" cy="32" r="6" />
+              <path d="M32 12c-4 6-4 10 0 14 4-4 4-8 0-14z" />
+              <path d="M32 52c-4-6-4-10 0-14 4 4 8 8 0 14z" />
+              <path d="M12 32c6-4 10-4 14 0-4 4-8 4-14 0z" />
+              <path d="M52 32c-6-4-10-4-14 0 4 4 8 4 14 0z" />
+            </svg>
+            <span>Hemora</span>
+          </div>
+          <h2>Create Account</h2>
+          <p class="auth-subtitle">
+            Join Hemora Jewellery for exclusive rewards and collections.
+          </p>
+          <form id="signup-form" novalidate>
+            <div class="form-group" style="margin-bottom: 16px">
+              <label
+                for="signup-name"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Full Name</label
+              >
+              <input
+                type="text"
+                id="signup-name"
+                placeholder="First and last name"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1px solid var(--color-border);
+                  border-radius: 9999px;
+                  font-size: 0.9rem;
+                  background-color: var(--color-bg-beige);
+                "
+              />
+            </div>
+            <div class="form-group" style="margin-bottom: 16px">
+              <label
+                for="signup-email"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="signup-email"
+                placeholder="name@example.com"
+                required
+                style="
+                  width: 100%;
+                  padding: 12px 16px;
+                  border: 1px solid var(--color-border);
+                  border-radius: 9999px;
+                  font-size: 0.9rem;
+                  background-color: var(--color-bg-beige);
+                "
+              />
+            </div>
+            <div
+              class="form-group form-group--password"
+              style="margin-bottom: 20px"
+            >
+              <label
+                for="signup-password"
+                style="
+                  font-weight: 700;
+                  font-size: 0.8rem;
+                  display: block;
+                  margin-bottom: 6px;
+                "
+                >Password</label
+              >
+              <div
+                class="password-wrapper"
+                style="position: relative; display: flex; align-items: center"
+              >
+                <input
+                  type="password"
+                  id="signup-password"
+                  placeholder="Create secure password"
+                  required
+                  style="
+                    width: 100%;
+                    padding: 12px 48px 12px 16px;
+                    border: 1px solid var(--color-border);
+                    border-radius: 9999px;
+                    font-size: 0.9rem;
+                    background-color: var(--color-bg-beige);
+                  "
+                />
+                <button
+                  type="button"
+                  class="toggle-pw"
+                  data-target="signup-password"
+                  tabindex="-1"
+                  aria-label="Show password"
+                  style="
+                    position: absolute;
+                    right: 12px;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: var(--color-text-muted);
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <p
+              class="auth-terms-note"
+              style="
+                font-size: 0.78rem;
+                color: var(--color-text-muted);
+                margin-bottom: 16px;
+                line-height: 1.5;
+              "
+            >
+              By creating an account, you agree to Hemora's
+              <a
+                href="terms.html"
+                style="
+                  color: var(--color-primary-dark);
+                  text-decoration: underline;
+                "
+                >Privacy Policy</a
+              >
+              and
+              <a
+                href="terms.html"
+                style="
+                  color: var(--color-primary-dark);
+                  text-decoration: underline;
+                "
+                >Terms of Use</a
+              >.
+            </p>
+            <button
+              type="submit"
+              class="btn btn--primary btn--full auth-submit-btn"
+              style="
+                width: 100%;
+                padding: 14px;
+                font-weight: 700;
+                border-radius: 9999px;
+                cursor: pointer;
+              "
+            >
+              Create Account
+            </button>
+          </form>
+          <div
+            class="auth-divider"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin: 20px 0 12px;
+              color: var(--color-text-muted);
+              font-size: 0.8rem;
+            "
+          >
+            <span>Already a member?</span>
+          </div>
+          <p
+            class="auth-modal__switch"
+            style="
+              margin-top: 16px;
+              text-align: center;
+              font-size: 0.85rem;
+              color: var(--color-text-muted);
+            "
+          >
+            Already have an account?
+            <a
+              href="javascript:void(0)"
+              id="switch-to-signin"
+              style="
+                color: var(--color-primary-dark);
+                font-weight: 700;
+                text-decoration: underline;
+              "
+              >Sign In</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEO LIGHTBOX MODAL -->
+    <div class="video-lightbox" id="video-lightbox">
+      <button
+        class="video-lightbox__close"
+        id="video-lightbox-close"
+        aria-label="Close video player"
+      >
+        &times;
+      </button>
+      <div class="video-lightbox__content">
+        <video id="lightbox-video" controls>
+          <source src="" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+
+    <script src="script.js?v=2"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Load direct checkout item or cart contents
+        var checkoutItem = null;
+        try {
+          checkoutItem = JSON.parse(
+            localStorage.getItem("hemora_checkout_item") || "null",
+          );
+        } catch (e) {
+          checkoutItem = null;
+        }
+
+        var summaryBody = document.getElementById("checkout-summary-body");
+        var subtotalEl = document.getElementById("summary-subtotal");
+        var totalEl = document.getElementById("summary-total");
+
+        var totalAmount = 0;
+
+        if (checkoutItem) {
+          // Direct Checkout (One item)
+          var priceNum =
+            typeof checkoutItem.price === "number"
+              ? checkoutItem.price
+              : parseInt(checkoutItem.price.toString().replace(/[^\d]/g, "")) ||
+                0;
+          totalAmount = priceNum * (checkoutItem.quantity || 1);
+
+          summaryBody.innerHTML = `
+                    <div class="checkout-item-row">
+                        <img src="${checkoutItem.image}" alt="${checkoutItem.name}" class="checkout-item-img">
+                        <div class="checkout-item-details">
+                            <h4 class="checkout-item-name">${checkoutItem.name}</h4>
+                            <div class="checkout-item-meta">Quantity: ${checkoutItem.quantity || 1}</div>
+                            <div class="checkout-item-price">${checkoutItem.price}</div>
+                        </div>
+                    </div>
+                `;
+        } else {
+          // Cart Checkout (All items in bag)
+          var cart = [];
+          try {
+            cart = JSON.parse(localStorage.getItem("hemora_cart")) || [];
+          } catch (e) {
+            cart = [];
+          }
+
+          if (cart.length === 0) {
+            summaryBody.innerHTML =
+              '<p style="color: var(--color-text-muted); text-align: center; padding: 20px 0;">No items to display. Back to shopping.</p>';
+          } else {
+            var itemsHtml = "";
+            cart.forEach(function (item) {
+              var priceNum =
+                typeof item.price === "number"
+                  ? item.price
+                  : parseInt(item.price.toString().replace(/[^\d]/g, "")) || 0;
+              totalAmount += priceNum * (item.quantity || 1);
+              itemsHtml += `
+                            <div class="checkout-item-row">
+                                <img src="${item.image}" alt="${item.name}" class="checkout-item-img">
+                                <div class="checkout-item-details">
+                                    <h4 class="checkout-item-name">${item.name}</h4>
+                                    <div class="checkout-item-meta">Quantity: ${item.quantity || 1}</div>
+                                    <div class="checkout-item-price">${item.price}</div>
+                                </div>
+                            </div>
+                        `;
+            });
+            summaryBody.innerHTML = itemsHtml;
+          }
+        }
+
+        // Display Prices
+        subtotalEl.textContent = "₹" + totalAmount.toLocaleString("en-IN");
+        totalEl.textContent = "₹" + totalAmount.toLocaleString("en-IN");
+
+        // Tab Switching
+        var tabs = document.querySelectorAll(".pay-tab");
+        var panes = document.querySelectorAll(".pay-pane");
+
+        tabs.forEach(function (tab) {
+          tab.addEventListener("click", function () {
+            tabs.forEach(function (t) {
+              t.classList.remove("active");
+            });
+            panes.forEach(function (p) {
+              p.classList.remove("active");
+            });
+
+            tab.classList.add("active");
+            var targetId = tab.getAttribute("data-target");
+            var targetPane = document.getElementById(targetId);
+            if (targetPane) targetPane.classList.add("active");
+          });
+        });
+
+        // Simulated Payment Process Handler
+        var loader = document.getElementById("payment-loader");
+        var loaderTitle = document.getElementById("loader-title");
+        var loaderSubtitle = document.getElementById("loader-subtitle");
+        var successBlock = document.getElementById("payment-success-msg");
+
+        function triggerPaymentSimulation(methodName) {
+          loader.classList.add("active");
+          loaderTitle.textContent = "Contacting Payment Gateway...";
+          loaderSubtitle.textContent =
+            "Securing encrypted handshakes via SSL tunnel...";
+
+          // Step 2: Authorizing
+          setTimeout(function () {
+            loaderTitle.textContent = "Authorizing Transaction...";
+            loaderSubtitle.textContent =
+              "Sending signature authorization to " +
+              methodName +
+              " gateway...";
+          }, 1500);
+
+          // Step 3: Success
+          setTimeout(function () {
+            // Hide spinner, show success
+            document.querySelector(".gold-spinner").style.display = "none";
+            loaderTitle.style.display = "none";
+            loaderSubtitle.style.display = "none";
+            successBlock.style.display = "flex";
+
+            // Clear direct item and main shopping cart
+            localStorage.removeItem("hemora_checkout_item");
+            localStorage.removeItem("hemora_cart");
+            if (window.updateCartCount) window.updateCartCount();
+            if (window.renderCart) window.renderCart();
+          }, 3000);
+        }
+
+        // Bind Form Submissions
+        var cardForm = document.getElementById("card-payment-form");
+        if (cardForm) {
+          cardForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            triggerPaymentSimulation("Credit Card");
+          });
+        }
+
+        var upiPayBtn = document.getElementById("upi-pay-btn");
+        if (upiPayBtn) {
+          upiPayBtn.addEventListener("click", function () {
+            triggerPaymentSimulation("UPI Apps");
+          });
+        }
+
+        var netForm = document.getElementById("net-payment-form");
+        if (netForm) {
+          netForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            triggerPaymentSimulation("Netbanking Secure Portal");
+          });
+        }
+
+        var codPayBtn = document.getElementById("cod-pay-btn");
+        if (codPayBtn) {
+          codPayBtn.addEventListener("click", function () {
+            triggerPaymentSimulation("Cash On Delivery (COD)");
+          });
+        }
+
+        // Success Return Action
+        var successReturnBtn = document.getElementById("success-return-btn");
+        if (successReturnBtn) {
+          successReturnBtn.addEventListener("click", function () {
+            window.location.href = "index.html";
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
