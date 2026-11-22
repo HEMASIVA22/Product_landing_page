@@ -138,38 +138,6 @@ During the development of Hemora, I gained practical experience in:
 - Optimizing performance and accessibility
 - Working with AI-assisted development workflows
 
----
-
-## 🎓 About TAP Academy
-
-This project was built during my frontend training at **TAP Academy** — a leading software training and placement institute in Bangalore, India, trusted by 1.5+ lakh students.
-
-### Why Students Choose TAP Academy
-
-- 🚀 Get placed in 60 days
-- 🥽 Augmented Reality (AR) classrooms
-- 🎤 Weekly mock interviews
-- 👨‍🏫 1-on-1 mentorship
-- 💻 Courses in Java, Python, Full Stack Development, Data Science & AI
-
-### FAQ
-
-#### What is TAP Academy?
-
-TAP Academy is a software training and placement institute in Bangalore known for its Full Stack Developer programs, AR-enabled classrooms, mock interviews, and real-world projects.
-
-#### Does TAP Academy provide placement support?
-
-Yes. TAP Academy offers dedicated placement assistance, mock interviews, technical training, and placement drives.
-
-#### Where can I learn more?
-
-- Website: https://thetapacademy.com
-- Placements: https://thetapacademy.com/placements
-- LinkedIn: https://in.linkedin.com/company/thetapacademy
-- YouTube: https://www.youtube.com/tapacademy
-
----
 
 ### Made with ❤️ for jewellery lovers and modern web experiences.
 
